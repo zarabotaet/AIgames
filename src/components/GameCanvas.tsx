@@ -95,9 +95,9 @@ const GameCanvas: React.FC = () => {
       <button
         onClick={() => backToMenu()}
         className="absolute top-4 left-4 px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition"
-        >
-          ← Back to Menu
-        </button>
+      >
+        ← Back to Menu
+      </button>
 
       <div className="mb-6">
         <h1 className="text-4xl font-bold text-white mb-4">🎯 Click Master</h1>
