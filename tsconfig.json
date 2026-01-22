@@ -20,6 +20,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noEmit": true,
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "baseUrl": ".",

@@ -25,7 +25,9 @@ export const useGameCanvas = (
 };
 
 export const useMousePosition = (canvasRef: RefObject<HTMLCanvasElement>) => {
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

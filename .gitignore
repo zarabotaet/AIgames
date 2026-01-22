@@ -11,6 +11,13 @@ dist
 dist-ssr
 *.local
 
+# TypeScript compiled output
+**/*.js
+**/*.js.map
+**/*.d.ts
+**/*.d.ts.map
+!src/**/*.d.ts  # Keep type definitions for external packages
+
 # IDE
 .vscode
 .idea
@@ -29,4 +36,7 @@ coverage
 
 # PWA
 public/pwa-*.png
+
+# Vercel
+.vercel/
 .vercel
