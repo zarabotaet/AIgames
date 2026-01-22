@@ -9,7 +9,7 @@ interface Game {
 }
 
 interface StartScreenProps {
-  onSelectGame: (game: string) => void;
+  onSelectGame: (game: 'click-game') => void;
 }
 
 const games: Game[] = [
@@ -80,7 +80,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onSelectGame }) => {
                 ? "hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
                 : "opacity-75 cursor-not-allowed"
             }`}
-            onClick={() => game.status === "available" && onSelectGame(game.id)}
+            onClick={() => game.status === "available" && game.id === "click-game" && onSelectGame("click-game")}
           >
             {/* Background gradient */}
             <div

@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useState } from "react";
 
 export const useGameCanvas = (
   canvasRef: RefObject<HTMLCanvasElement>,
@@ -25,7 +25,8 @@ export const useGameCanvas = (
 };
 
 export const useMousePosition = (canvasRef: RefObject<HTMLCanvasElement>) => {
-  const [mousePos, setMousePos] = useEffect(() => {
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 

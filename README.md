@@ -49,38 +49,6 @@ npm run test        # Run tests
 npm run test:ui    # Run tests with UI
 ```
 
-## Deployment
-
-### Deploy to Vercel (Recommended)
-
-1. **One-time setup:**
-   ```bash
-   npx vercel
-   ```
-   Follow the prompts to connect your GitHub repo to Vercel.
-
-2. **Auto-deploy on git push:**
-   - Push to `main` branch
-   - Vercel automatically builds and deploys
-   - Get a live URL instantly
-
-3. **Manual deployment:**
-   ```bash
-   npx vercel --prod
-   ```
-
-### GitHub Actions (Auto-Deploy)
-
-For automatic deployment on every push, configure GitHub secrets:
-
-1. Go to your repo → Settings → Secrets and variables → Actions
-2. Add these secrets:
-   - `VERCEL_TOKEN` - Get from https://vercel.com/account/tokens
-   - `VERCEL_ORG_ID` - Found in Vercel account settings
-   - `VERCEL_PROJECT_ID` - Found in project settings
-
-The workflow file `.github/workflows/deploy.yml` is already configured.
-
 ## Project Structure
 
 ```

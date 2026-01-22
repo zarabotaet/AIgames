@@ -29,3 +29,4 @@ coverage
 
 # PWA
 public/pwa-*.png
+.vercel
