@@ -10,6 +10,7 @@ import {
   backToMenu,
 } from "@store/gameStore";
 import { useGameCanvas } from "@hooks/useGameCanvas";
+import { toggleFullscreen } from "@lib/utils";
 
 interface Point {
   x: number;
@@ -35,20 +36,6 @@ const GameCanvas: React.FC = () => {
     ctx.beginPath();
     ctx.arc(positionRef.current.x, positionRef.current.y, 20, 0, Math.PI * 2);
     ctx.fill();
-
-    // Draw score text
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "24px Arial";
-    ctx.fillText(`Score: ${score}`, 20, 40);
-
-    if (!isGameRunning) {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 32px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("Click Start to Play", canvas.width / 2, canvas.height / 2);
-    }
   };
 
   useGameCanvas(canvasRef, gameLoop);
@@ -128,6 +115,15 @@ const GameCanvas: React.FC = () => {
           className="px-6 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 disabled:bg-gray-500 disabled:cursor-not-allowed transition"
         >
           End Game
+        </button>
+        <button
+          onClick={() =>
+            canvasRef.current && toggleFullscreen(canvasRef.current)
+          }
+          className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition"
+          title="Toggle Fullscreen"
+        >
+          ⛶ Fullscreen
         </button>
       </div>
 

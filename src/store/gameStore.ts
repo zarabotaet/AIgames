@@ -1,6 +1,6 @@
 import { createStore, createEvent } from "effector";
 
-export type GameType = "menu" | "click-game";
+export type GameType = "menu" | "click-game" | "sort-colors";
 
 // Navigation Events
 export const gameSelected = createEvent<GameType>();

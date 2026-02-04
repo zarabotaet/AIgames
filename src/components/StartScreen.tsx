@@ -18,6 +18,13 @@ const games: Game[] = [
     icon: "⚡",
   },
   {
+    id: "sort-colors",
+    title: "🎨 Sort Colors",
+    description: "Sort colors into matching flasks",
+    status: "available",
+    icon: "🖌️",
+  },
+  {
     id: "puzzle-game",
     title: "🧩 Puzzle Quest",
     description: "Solve mind-bending puzzles",
@@ -60,10 +67,10 @@ const StartScreen: React.FC = () => {
       {/* Header */}
       <div className="text-center mb-12 animate-fade-in">
         <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 mb-4">
-          AI Games
+          Games for Mike and Margo
         </h1>
         <p className="text-xl text-gray-300">
-          Browser-based games created by AI for you and your wife
+          Browser-based games created by AI for Mike and Margo
         </p>
       </div>
 
@@ -78,8 +85,8 @@ const StartScreen: React.FC = () => {
                 : "opacity-75 cursor-not-allowed"
             }`}
             onClick={() => {
-              if (game.status === "available" && game.id === "click-game") {
-                gameSelected("click-game");
+              if (game.status === "available") {
+                gameSelected(game.id as "click-game" | "sort-colors");
               }
             }}
           >
