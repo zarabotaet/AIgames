@@ -230,7 +230,7 @@ const SortColorsGame: React.FC = () => {
             className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden"
             viewBox="0 0 1400 900"
           >
-            {Array.from({ length: 100 }).map((_, i) => {
+            {Array.from({ length: 500 }).map((_, i) => {
               const colors = [
                 "#FF6B6B",
                 "#4ECDC4",
@@ -249,19 +249,21 @@ const SortColorsGame: React.FC = () => {
               ];
               const randomColor = colors[i % colors.length];
               const randomX = Math.random() * 1400;
-              const randomDelay = Math.random() * 0.2;
-              const randomDuration = 2 + Math.random() * 1;
+              const randomDelay = Math.random() * 0.1;
+              const randomDuration = 1.2 + Math.random() * 0.8;
               const randomRotation = Math.random() * 720;
+              const randomSwing = -100 + Math.random() * 200;
+              const randomSize = 10 + Math.random() * 6;
 
               return (
                 <g key={i}>
                   <rect
                     x={randomX}
                     y={-20}
-                    width="12"
-                    height="12"
+                    width={randomSize}
+                    height={randomSize}
                     fill={randomColor}
-                    opacity="0.8"
+                    opacity="0.9"
                   >
                     <animate
                       attributeName="y"
@@ -270,18 +272,27 @@ const SortColorsGame: React.FC = () => {
                       dur={`${randomDuration}s`}
                       begin={`${randomDelay}s`}
                       repeatCount="1"
-                      fill="freeze"
+                      fill="remove"
+                    />
+                    <animate
+                      attributeName="x"
+                      from={randomX}
+                      to={randomX + randomSwing}
+                      dur={`${randomDuration}s`}
+                      begin={`${randomDelay}s`}
+                      repeatCount="1"
+                      fill="remove"
                     />
                     <animateTransform
                       attributeName="transform"
                       attributeType="XML"
                       type="rotate"
-                      from={`0 ${randomX + 6} ${-14}`}
-                      to={`${randomRotation} ${randomX + 6} ${900}`}
+                      from={`0 ${randomX + randomSize / 2} ${-14}`}
+                      to={`${randomRotation} ${randomX + randomSwing + randomSize / 2} ${900}`}
                       dur={`${randomDuration}s`}
                       begin={`${randomDelay}s`}
                       repeatCount="1"
-                      fill="freeze"
+                      fill="remove"
                       additive="sum"
                     />
                   </rect>
@@ -343,24 +354,26 @@ const SortColorsGame: React.FC = () => {
         </svg>
       </button>
 
-      {/* Fullscreen Button - Top Right */}
-      <button
-        onClick={() =>
-          containerRef.current && toggleFullscreen(containerRef.current)
-        }
-        className="absolute top-4 right-4 hover:scale-110 transition z-10 w-8 h-8 flex items-center justify-center"
-        title="Toggle Fullscreen"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          className="w-full h-full text-white"
+      {/* Fullscreen Button - Top Right (Desktop only) */}
+      {!isMobile && (
+        <button
+          onClick={() =>
+            containerRef.current && toggleFullscreen(containerRef.current)
+          }
+          className="absolute top-4 right-4 hover:scale-110 transition z-10 w-8 h-8 flex items-center justify-center"
+          title="Toggle Fullscreen"
         >
-          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-        </svg>
-      </button>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            className="w-full h-full text-white"
+          >
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+          </svg>
+        </button>
+      )}
 
       {/* Moves Counter - Top Center */}
       <div
