@@ -7,6 +7,7 @@ import {
   colorGameReset,
   difficultySelected,
   bestScoreUpdated,
+  groupedMovesSelected,
   type Difficulty,
 } from "@store/colorGameStore";
 import { backToMenu } from "@store/gameStore";
@@ -53,7 +54,21 @@ const SortColorsGame: React.FC = () => {
 
   // Calculate grid layout first
   const totalFlasks = gameState.flasks.length;
-  const flasksPerRow = Math.ceil(totalFlasks / 2);
+
+  // Adjust flasks per row based on orientation and total count
+  let flasksPerRow: number;
+  if (isPortrait && isMobile) {
+    // Mobile portrait: use fewer flasks per row for better fit
+    if (totalFlasks <= 4) {
+      flasksPerRow = 2;
+    } else if (totalFlasks <= 6) {
+      flasksPerRow = 3;
+    } else {
+      flasksPerRow = 3; // Expert (10) becomes 3-3-3-1
+    }
+  } else {
+    flasksPerRow = Math.ceil(totalFlasks / 2);
+  }
   const numRows = Math.ceil(totalFlasks / flasksPerRow);
 
   // Available space (accounting for UI elements)
@@ -62,30 +77,32 @@ const SortColorsGame: React.FC = () => {
   const availableHeight = windowHeight - topBottomMargin;
 
   // Dynamic sizing to fit all flasks
-  const spacingBetweenFlasks = isPortrait ? 15 : 20;
+  const spacingBetweenFlasks =
+    isPortrait && isMobile ? 8 : isPortrait ? 15 : 20;
   const maxFlaskWidth = Math.min(
-    (availableWidth - (flasksPerRow - 1) * spacingBetweenFlasks) / flasksPerRow,
+    (availableWidth - (flasksPerRow + 1) * spacingBetweenFlasks) / flasksPerRow,
     isPortrait ? 70 : isMobile ? 60 : 80,
   );
-  const flaskSpacing = maxFlaskWidth * (isPortrait ? 1.4 : isMobile ? 2 : 2.2);
+  const flaskSpacing = maxFlaskWidth + spacingBetweenFlasks;
 
   // Flask height based on orientation and available space
-  const rowSpacing = isPortrait ? 30 : 40;
+  const rowSpacing = isPortrait && isMobile ? 20 : isPortrait ? 30 : 40;
   const maxFlaskHeight = Math.min(
-    ((availableHeight - (numRows - 1) * rowSpacing) / numRows) * 0.8,
-    maxFlaskWidth * (isPortrait ? 3.5 : 2.5),
+    ((availableHeight - (numRows - 1) * rowSpacing) / numRows) * 0.85,
+    maxFlaskWidth * (isPortrait ? 3 : 2.5),
   );
 
   const flaskWidth = Math.floor(maxFlaskWidth);
   const flaskHeight = Math.floor(maxFlaskHeight);
-  const rowHeight = flaskHeight * (isPortrait ? 1.2 : 1.3);
+  const rowHeight = flaskHeight + rowSpacing;
 
   const svgWidth = availableWidth;
   const svgHeight = availableHeight;
 
   // Center the grid
-  const totalWidth = (flasksPerRow - 1) * flaskSpacing + flaskWidth;
-  const totalHeight = (numRows - 1) * rowHeight + flaskHeight;
+  const totalWidth =
+    flasksPerRow * flaskWidth + (flasksPerRow - 1) * spacingBetweenFlasks;
+  const totalHeight = numRows * flaskHeight + (numRows - 1) * rowSpacing;
   const startX = (svgWidth - totalWidth) / 2;
   const startY = (svgHeight - totalHeight) / 2;
 
@@ -138,6 +155,10 @@ const SortColorsGame: React.FC = () => {
     setShowDifficultyButtons(false);
   };
 
+  const handleGroupedMovesToggle = () => {
+    groupedMovesSelected(!gameState.groupedMoves);
+  };
+
   const handlePlayAgain = () => {
     colorGameReset();
     colorGameStarted();
@@ -176,6 +197,18 @@ const SortColorsGame: React.FC = () => {
           const y = startY + row * rowHeight;
           const isSelected = gameState.selectedFlask === flask.id;
           const colorHeight = flaskHeight / flask.maxCapacity;
+          const topColor = flask.colors[flask.colors.length - 1];
+          let topRunLength = 0;
+
+          if (gameState.groupedMoves && topColor) {
+            for (let i = flask.colors.length - 1; i >= 0; i--) {
+              if (flask.colors[i] === topColor) {
+                topRunLength++;
+              } else {
+                break;
+              }
+            }
+          }
 
           return (
             <g key={flask.id}>
@@ -193,6 +226,8 @@ const SortColorsGame: React.FC = () => {
               {/* Flask colors */}
               {flask.colors.map((color, idx) => {
                 const isTopPiece = idx === flask.colors.length - 1;
+                const isTopRunPiece =
+                  topRunLength > 0 && idx >= flask.colors.length - topRunLength;
                 const pieceY = y + flaskHeight - (idx + 1) * colorHeight + 2;
 
                 return (
@@ -204,16 +239,18 @@ const SortColorsGame: React.FC = () => {
                     height={colorHeight - 2}
                     fill={color}
                   >
-                    {isSelected && isTopPiece && (
-                      <animateTransform
-                        attributeName="transform"
-                        attributeType="XML"
-                        type="translate"
-                        values="0 0; 0 -8; 0 0"
-                        dur="0.6s"
-                        repeatCount="indefinite"
-                      />
-                    )}
+                    {isSelected &&
+                      ((gameState.groupedMoves && isTopRunPiece) ||
+                        (!gameState.groupedMoves && isTopPiece)) && (
+                        <animateTransform
+                          attributeName="transform"
+                          attributeType="XML"
+                          type="translate"
+                          values="0 0; 0 -8; 0 0"
+                          dur="0.6s"
+                          repeatCount="indefinite"
+                        />
+                      )}
                   </rect>
                 );
               })}
@@ -248,51 +285,74 @@ const SortColorsGame: React.FC = () => {
                 "#FB5607",
               ];
               const randomColor = colors[i % colors.length];
-              const randomX = Math.random() * 1400;
-              const randomDelay = Math.random() * 0.1;
-              const randomDuration = 1.2 + Math.random() * 0.8;
+
+              // Firework effect: explode from center
+              const centerX = 700;
+              const centerY = 450;
+              const angle = Math.random() * Math.PI * 2;
+              const distance = 100 + Math.random() * 600;
+              const endX = centerX + Math.cos(angle) * distance;
+              const endY = centerY + Math.sin(angle) * distance;
+
+              const randomDelay = Math.random() * 0.2;
+              const randomDuration = 1.5 + Math.random() * 1;
               const randomRotation = Math.random() * 720;
-              const randomSwing = -100 + Math.random() * 200;
-              const randomSize = 10 + Math.random() * 6;
+              const randomSize = 8 + Math.random() * 8;
 
               return (
                 <g key={i}>
                   <rect
-                    x={randomX}
-                    y={-20}
+                    x={centerX}
+                    y={centerY}
                     width={randomSize}
                     height={randomSize}
                     fill={randomColor}
-                    opacity="0.9"
+                    opacity="0"
                   >
                     <animate
-                      attributeName="y"
-                      from="-20"
-                      to="920"
-                      dur={`${randomDuration}s`}
+                      attributeName="opacity"
+                      from="0"
+                      to="1"
+                      dur="0.1s"
                       begin={`${randomDelay}s`}
-                      repeatCount="1"
-                      fill="remove"
+                      fill="freeze"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      from="1"
+                      to="0"
+                      dur="0.5s"
+                      begin={`${randomDelay + randomDuration - 0.5}s`}
+                      fill="freeze"
                     />
                     <animate
                       attributeName="x"
-                      from={randomX}
-                      to={randomX + randomSwing}
+                      from={centerX}
+                      to={endX}
                       dur={`${randomDuration}s`}
                       begin={`${randomDelay}s`}
                       repeatCount="1"
-                      fill="remove"
+                      fill="freeze"
+                    />
+                    <animate
+                      attributeName="y"
+                      from={centerY}
+                      to={endY}
+                      dur={`${randomDuration}s`}
+                      begin={`${randomDelay}s`}
+                      repeatCount="1"
+                      fill="freeze"
                     />
                     <animateTransform
                       attributeName="transform"
                       attributeType="XML"
                       type="rotate"
-                      from={`0 ${randomX + randomSize / 2} ${-14}`}
-                      to={`${randomRotation} ${randomX + randomSwing + randomSize / 2} ${900}`}
+                      from={`0 ${centerX + randomSize / 2} ${centerY + randomSize / 2}`}
+                      to={`${randomRotation} ${endX + randomSize / 2} ${endY + randomSize / 2}`}
                       dur={`${randomDuration}s`}
                       begin={`${randomDelay}s`}
                       repeatCount="1"
-                      fill="remove"
+                      fill="freeze"
                       additive="sum"
                     />
                   </rect>
@@ -427,6 +487,16 @@ const SortColorsGame: React.FC = () => {
                 {option.label}
               </button>
             ))}
+            <button
+              onClick={handleGroupedMovesToggle}
+              className={`px-3 py-2 ${isMobile ? "text-xs" : "text-sm"} font-bold rounded transition ${
+                gameState.groupedMoves
+                  ? "bg-emerald-600 text-white"
+                  : "bg-slate-700 text-gray-300 hover:bg-slate-600"
+              }`}
+            >
+              Grouped colors: {gameState.groupedMoves ? "On" : "Off"}
+            </button>
             <button
               onClick={() => setShowDifficultyButtons(false)}
               className={`px-3 py-2 ${isMobile ? "text-xs" : "text-sm"} font-bold rounded bg-gray-700 text-white hover:bg-gray-600 transition`}

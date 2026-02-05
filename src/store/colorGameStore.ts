@@ -18,6 +18,7 @@ export interface ColorGameState {
   gameStarted: boolean;
   difficulty: Difficulty;
   bestScore: Record<Difficulty, number>;
+  groupedMoves: boolean;
 }
 
 // Events
@@ -28,6 +29,7 @@ export const colorMoved = createEvent();
 export const colorGameReset = createEvent();
 export const scoredPoints = createEvent<number>();
 export const difficultySelected = createEvent<Difficulty>();
+export const groupedMovesSelected = createEvent<boolean>();
 export const bestScoreUpdated = createEvent<{
   difficulty: Difficulty;
   moves: number;
@@ -87,6 +89,28 @@ const saveDifficulty = (difficulty: Difficulty) => {
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(DIFFICULTY_KEY, difficulty);
+    } catch {
+      // Silently fail
+    }
+  }
+};
+
+const GROUPED_MOVES_KEY = "colorGame_groupedMoves";
+
+const loadGroupedMoves = (): boolean => {
+  if (typeof window === "undefined") return false;
+  try {
+    const stored = localStorage.getItem(GROUPED_MOVES_KEY);
+    return stored === "true";
+  } catch {
+    return false;
+  }
+};
+
+const saveGroupedMoves = (enabled: boolean) => {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(GROUPED_MOVES_KEY, String(enabled));
     } catch {
       // Silently fail
     }
@@ -190,6 +214,7 @@ const initializeFlasks = (difficulty: Difficulty = "normal"): Flask[] => {
 // Color Game Store
 const initialBestScores = loadBestScores();
 const initialDifficulty = loadDifficulty();
+const initialGroupedMoves = loadGroupedMoves();
 
 export const $colorGame = createStore<ColorGameState>({
   flasks: initializeFlasks(initialDifficulty),
@@ -201,6 +226,7 @@ export const $colorGame = createStore<ColorGameState>({
   gameStarted: false,
   difficulty: initialDifficulty,
   bestScore: initialBestScores,
+  groupedMoves: initialGroupedMoves,
 })
   .on(difficultySelected, (state, difficulty) => {
     saveDifficulty(difficulty);
@@ -208,6 +234,13 @@ export const $colorGame = createStore<ColorGameState>({
       ...state,
       difficulty,
       flasks: initializeFlasks(difficulty),
+    };
+  })
+  .on(groupedMovesSelected, (state, enabled) => {
+    saveGroupedMoves(enabled);
+    return {
+      ...state,
+      groupedMoves: enabled,
     };
   })
   .on(colorGameStarted, (state) => ({
@@ -243,10 +276,33 @@ export const $colorGame = createStore<ColorGameState>({
       return { ...state, selectedFlask: targetId };
     }
 
-    // Move top color from source to target (simple rule: capacity check only)
-    const movingColor = source.colors.pop();
+    const movingColor = source.colors[source.colors.length - 1];
     if (!movingColor) return state;
-    target.colors.push(movingColor);
+
+    let moveCount = 1;
+    if (state.groupedMoves) {
+      moveCount = 0;
+      for (let i = source.colors.length - 1; i >= 0; i--) {
+        if (source.colors[i] === movingColor) {
+          moveCount++;
+        } else {
+          break;
+        }
+      }
+    }
+
+    if (state.groupedMoves) {
+      const hasSpace = target.colors.length + moveCount <= target.maxCapacity;
+      if (!hasSpace) {
+        return { ...state, selectedFlask: targetId };
+      }
+    }
+
+    for (let i = 0; i < moveCount; i++) {
+      const popped = source.colors.pop();
+      if (!popped) break;
+      target.colors.push(popped);
+    }
 
     return {
       ...state,
@@ -278,6 +334,7 @@ export const $colorGame = createStore<ColorGameState>({
     gameStarted: false,
     difficulty: state.difficulty,
     bestScore: state.bestScore,
+    groupedMoves: state.groupedMoves,
   }))
   .on(bestScoreUpdated, (state, { difficulty, moves }) => {
     const updatedScores = { ...state.bestScore };
