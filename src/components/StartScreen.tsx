@@ -28,7 +28,7 @@ const StartScreen: React.FC = () => {
       </div>
 
       {/* Games Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full">
         {/* Sort Colors Game */}
         <div
           className="relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
@@ -44,6 +44,25 @@ const StartScreen: React.FC = () => {
             <p className="text-gray-100 text-sm">
               Sort colors into matching flasks
             </p>
+          </div>
+
+          {/* Hover effect overlay */}
+          <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300" />
+        </div>
+
+        {/* 2048 Game */}
+        <div
+          className="relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
+          onClick={() => gameSelected("game-2048")}
+        >
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-orange-600" />
+
+          {/* Content */}
+          <div className="relative p-6 h-48 flex flex-col justify-center items-center text-center">
+            <div className="text-5xl mb-4">🔢</div>
+            <h2 className="text-3xl font-bold text-white mb-2">2048</h2>
+            <p className="text-gray-100 text-sm">Merge tiles to reach 2048</p>
           </div>
 
           {/* Hover effect overlay */}
