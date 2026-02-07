@@ -65,9 +65,11 @@ const Game2048: React.FC = () => {
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    e.preventDefault();
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
     if (!touchStartRef.current || gameState.isGameOver) return;
 
     const touch = e.changedTouches[0];
@@ -146,6 +148,7 @@ const Game2048: React.FC = () => {
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      style={{ touchAction: "none" }}
     >
       {/* Header */}
       <div className="mb-4 flex items-center justify-between w-full max-w-xl">
@@ -199,6 +202,7 @@ const Game2048: React.FC = () => {
         style={{
           width: `${gridSize}px`,
           height: `${gridSize}px`,
+          touchAction: "none",
         }}
       >
         {/* Grid cells (background) */}
