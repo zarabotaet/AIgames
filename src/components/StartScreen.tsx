@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { gameSelected } from "@store/gameStore";
+import { useGameNavigation } from "@hooks/useGameNavigation";
 
 const StartScreen: React.FC = () => {
+  const { goToGame } = useGameNavigation();
   const [showProposalDialog, setShowProposalDialog] = useState(false);
   const [proposalText, setProposalText] = useState("");
 
@@ -32,7 +33,7 @@ const StartScreen: React.FC = () => {
         {/* Sort Colors Game */}
         <div
           className="relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
-          onClick={() => gameSelected("sort-colors")}
+          onClick={() => goToGame("sort-colors")}
         >
           {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600" />
@@ -53,7 +54,7 @@ const StartScreen: React.FC = () => {
         {/* 2048 Game */}
         <div
           className="relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
-          onClick={() => gameSelected("game-2048")}
+          onClick={() => goToGame("game-2048")}
         >
           {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-orange-600" />

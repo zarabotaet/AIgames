@@ -10,12 +10,13 @@ import {
   groupedMovesSelected,
   type Difficulty,
 } from "@store/colorGameStore";
-import { backToMenu } from "@store/gameStore";
+import { useGameNavigation } from "@hooks/useGameNavigation";
 import { toggleFullscreen } from "@lib/utils";
 
 const SortColorsGame: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameState = useStore($colorGame);
+  const { goToMenu } = useGameNavigation();
   const [showDifficultyButtons, setShowDifficultyButtons] = useState(false);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1400,
@@ -388,7 +389,7 @@ const SortColorsGame: React.FC = () => {
               New Puzzle
             </button>
             <button
-              onClick={() => backToMenu()}
+              onClick={() => goToMenu()}
               className={`${isMobile ? "px-4 py-2" : "px-5 py-3"} bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 ${isMobile ? "text-sm" : ""}`}
             >
               Back to Menu
@@ -399,7 +400,7 @@ const SortColorsGame: React.FC = () => {
 
       {/* Back Button - Top Left */}
       <button
-        onClick={() => backToMenu()}
+        onClick={() => goToMenu()}
         className="absolute top-4 left-4 hover:scale-110 transition z-10 w-8 h-8 flex items-center justify-center"
         title="Back to Menu"
       >

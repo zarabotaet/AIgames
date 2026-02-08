@@ -9,10 +9,11 @@ import {
   moveLeft,
   moveRight,
 } from "@store/game2048Store";
-import { backToMenu } from "@store/gameStore";
+import { useGameNavigation } from "@hooks/useGameNavigation";
 
 const Game2048: React.FC = () => {
   const gameState = useStore($game2048);
+  const { goToMenu } = useGameNavigation();
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [windowWidth, setWindowWidth] = useState(
@@ -153,7 +154,7 @@ const Game2048: React.FC = () => {
       {/* Header */}
       <div className="mb-4 flex items-center justify-between w-full max-w-xl">
         <button
-          onClick={() => backToMenu()}
+          onClick={() => goToMenu()}
           className="hover:scale-110 transition w-8 h-8 flex items-center justify-center"
           title="Back to Menu"
         >
@@ -261,7 +262,7 @@ const Game2048: React.FC = () => {
                 Try Again
               </button>
               <button
-                onClick={() => backToMenu()}
+                onClick={() => goToMenu()}
                 className="px-6 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600"
               >
                 Menu

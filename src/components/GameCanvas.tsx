@@ -7,8 +7,8 @@ import {
   gameStarted,
   gameEnded,
   scoreReset,
-  backToMenu,
 } from "@store/gameStore";
+import { useGameNavigation } from "@hooks/useGameNavigation";
 import { useGameCanvas } from "@hooks/useGameCanvas";
 import { toggleFullscreen } from "@lib/utils";
 
@@ -21,6 +21,7 @@ const GameCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const score = useStore($score);
   const isGameRunning = useStore($isGameRunning);
+  const { goToMenu } = useGameNavigation();
   const positionRef = useRef<Point>({ x: 400, y: 300 });
 
   const gameLoop = (
@@ -80,7 +81,7 @@ const GameCanvas: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 p-4">
       {/* Back Button */}
       <button
-        onClick={() => backToMenu()}
+        onClick={() => goToMenu()}
         className="absolute top-4 left-4 px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition"
       >
         ← Back to Menu
