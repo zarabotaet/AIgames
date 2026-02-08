@@ -155,10 +155,19 @@ const Game2048: React.FC = () => {
       style={{ touchAction: "none" }}
     >
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between w-full max-w-xl">
+      <div className="mb-4 flex items-center justify-center w-full max-w-xl">
+        <h1
+          className={`font-bold text-white ${isMobile ? "text-4xl" : "text-5xl"}`}
+        >
+          2048
+        </h1>
+      </div>
+
+      {/* Score Display */}
+      <div className="flex gap-3 mb-4">
         <button
           onClick={() => goToMenu()}
-          className="hover:scale-110 transition w-8 h-8 flex items-center justify-center"
+          className="px-6 py-3 bg-slate-700 rounded-lg hover:bg-slate-600 transition flex items-center justify-center hover:scale-110"
           title="Back to Menu"
         >
           <svg
@@ -166,28 +175,11 @@ const Game2048: React.FC = () => {
             fill="none"
             stroke="currentColor"
             strokeWidth="2.5"
-            className="w-full h-full text-white"
+            className="w-6 h-6 text-white"
           >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-
-        <h1
-          className={`font-bold text-white ${isMobile ? "text-4xl" : "text-5xl"}`}
-        >
-          2048
-        </h1>
-
-        <button
-          onClick={handleNewGame}
-          className="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition text-sm"
-        >
-          New
-        </button>
-      </div>
-
-      {/* Score Display */}
-      <div className="flex gap-3 mb-4">
         <div className="bg-slate-700 px-6 py-3 rounded-lg text-center">
           <div className="text-gray-400 text-xs font-bold uppercase">Score</div>
           <div className="text-white text-2xl font-bold">{gameState.score}</div>
@@ -201,10 +193,24 @@ const Game2048: React.FC = () => {
         <button
           onClick={() => undoMove()}
           disabled={gameState.history.length === 0}
-          className="px-4 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
+          className="px-6 py-3 flex items-center justify-center bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition hover:scale-110"
           title="Undo last move"
         >
-          ↶ Undo
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            className="w-6 h-6"
+          >
+            <path d="M9 14L4 9m0 0l5-5M4 9h10.5a5.5 5.5 0 015.5 5.5v0a5.5 5.5 0 01-5.5 5.5H13" />
+          </svg>
+        </button>
+        <button
+          onClick={handleNewGame}
+          className="px-6 py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition hover:scale-110"
+        >
+          New
         </button>
       </div>
 
