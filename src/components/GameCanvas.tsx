@@ -8,9 +8,9 @@ import {
   gameEnded,
   scoreReset,
 } from "@store/gameStore";
-import { useGameNavigation } from "@hooks/useGameNavigation";
 import { useGameCanvas } from "@hooks/useGameCanvas";
 import { toggleFullscreen } from "@lib/utils";
+import { GameLayout } from "./GameLayout";
 
 interface Point {
   x: number;
@@ -21,7 +21,6 @@ const GameCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const score = useStore($score);
   const isGameRunning = useStore($isGameRunning);
-  const { goToMenu } = useGameNavigation();
   const positionRef = useRef<Point>({ x: 400, y: 300 });
 
   const gameLoop = (
@@ -78,60 +77,50 @@ const GameCanvas: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 p-4">
-      {/* Back Button */}
-      <button
-        onClick={() => goToMenu()}
-        className="absolute top-4 left-4 px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition"
-      >
-        ← Back to Menu
-      </button>
+    <GameLayout onNewGame={handleStart} showConfigButton={false} score={score}>
+      <div className="flex flex-col items-center justify-center p-4 w-full h-full overflow-hidden">
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold text-white mb-4">🎯 Click Master</h1>
+          <p className="text-gray-300 text-lg">
+            Click the blue circle to score points!
+          </p>
+        </div>
 
-      <div className="mb-6">
-        <h1 className="text-4xl font-bold text-white mb-4">🎯 Click Master</h1>
-        <p className="text-gray-300 text-lg">
-          Click the blue circle to score points!
-        </p>
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={600}
+          onClick={handleCanvasClick}
+          className="border-4 border-blue-500 rounded-lg shadow-lg cursor-pointer mb-6"
+        />
+
+        <div className="flex gap-4">
+          <button
+            onClick={handleStart}
+            disabled={isGameRunning}
+            className="px-6 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-not-allowed transition"
+          >
+            Start Game
+          </button>
+          <button
+            onClick={handleEnd}
+            disabled={!isGameRunning}
+            className="px-6 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 disabled:bg-gray-500 disabled:cursor-not-allowed transition"
+          >
+            End Game
+          </button>
+          <button
+            onClick={() =>
+              canvasRef.current && toggleFullscreen(canvasRef.current)
+            }
+            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition"
+            title="Toggle Fullscreen"
+          >
+            ⛶ Fullscreen
+          </button>
+        </div>
       </div>
-
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        onClick={handleCanvasClick}
-        className="border-4 border-blue-500 rounded-lg shadow-lg cursor-pointer mb-6"
-      />
-
-      <div className="flex gap-4">
-        <button
-          onClick={handleStart}
-          disabled={isGameRunning}
-          className="px-6 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 disabled:bg-gray-500 disabled:cursor-not-allowed transition"
-        >
-          Start Game
-        </button>
-        <button
-          onClick={handleEnd}
-          disabled={!isGameRunning}
-          className="px-6 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 disabled:bg-gray-500 disabled:cursor-not-allowed transition"
-        >
-          End Game
-        </button>
-        <button
-          onClick={() =>
-            canvasRef.current && toggleFullscreen(canvasRef.current)
-          }
-          className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition"
-          title="Toggle Fullscreen"
-        >
-          ⛶ Fullscreen
-        </button>
-      </div>
-
-      <div className="mt-6 text-center">
-        <p className="text-gray-300 text-xl">Final Score: {score}</p>
-      </div>
-    </div>
+    </GameLayout>
   );
 };
 

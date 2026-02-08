@@ -19,6 +19,7 @@ export interface ColorGameState {
   difficulty: Difficulty;
   bestScore: Record<Difficulty, number>;
   groupedMoves: boolean;
+  history: { flasks: Flask[]; moves: number }[];
 }
 
 // Events
@@ -34,6 +35,7 @@ export const bestScoreUpdated = createEvent<{
   difficulty: Difficulty;
   moves: number;
 }>();
+export const undoColorMove = createEvent();
 
 // LocalStorage helpers
 const BEST_SCORE_KEY = "colorGame_bestScores";
@@ -227,6 +229,7 @@ export const $colorGame = createStore<ColorGameState>({
   difficulty: initialDifficulty,
   bestScore: initialBestScores,
   groupedMoves: initialGroupedMoves,
+  history: [],
 })
   .on(difficultySelected, (state, difficulty) => {
     saveDifficulty(difficulty);
@@ -234,6 +237,10 @@ export const $colorGame = createStore<ColorGameState>({
       ...state,
       difficulty,
       flasks: initializeFlasks(difficulty),
+      history: [],
+      moves: 0,
+      selectedFlask: null,
+      isGameWon: false,
     };
   })
   .on(groupedMovesSelected, (state, enabled) => {
@@ -298,6 +305,15 @@ export const $colorGame = createStore<ColorGameState>({
       }
     }
 
+    // Save current state to history before making the move
+    const newHistory = [
+      ...state.history,
+      {
+        flasks: state.flasks.map((f) => ({ ...f, colors: [...f.colors] })),
+        moves: state.moves,
+      },
+    ];
+
     for (let i = 0; i < moveCount; i++) {
       const popped = source.colors.pop();
       if (!popped) break;
@@ -310,6 +326,7 @@ export const $colorGame = createStore<ColorGameState>({
       selectedFlask: null,
       moves: state.moves + 1,
       isGameWon: isWinState(flasks),
+      history: newHistory,
     };
   })
   .on(colorMoved, (state) => ({
@@ -335,7 +352,23 @@ export const $colorGame = createStore<ColorGameState>({
     difficulty: state.difficulty,
     bestScore: state.bestScore,
     groupedMoves: state.groupedMoves,
+    history: [],
   }))
+  .on(undoColorMove, (state) => {
+    if (state.history.length === 0) return state;
+    
+    const previousState = state.history[state.history.length - 1];
+    const newHistory = state.history.slice(0, -1);
+    
+    return {
+      ...state,
+      flasks: previousState.flasks.map((f) => ({ ...f, colors: [...f.colors] })),
+      moves: previousState.moves,
+      history: newHistory,
+      selectedFlask: null,
+      isGameWon: false,
+    };
+  })
   .on(bestScoreUpdated, (state, { difficulty, moves }) => {
     const updatedScores = { ...state.bestScore };
     if (moves < (updatedScores[difficulty] ?? Infinity)) {

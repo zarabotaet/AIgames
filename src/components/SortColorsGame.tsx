@@ -8,15 +8,15 @@ import {
   difficultySelected,
   bestScoreUpdated,
   groupedMovesSelected,
+  undoColorMove,
   type Difficulty,
 } from "@store/colorGameStore";
-import { useGameNavigation } from "@hooks/useGameNavigation";
 import { toggleFullscreen } from "@lib/utils";
+import { GameLayout } from "./GameLayout";
 
 const SortColorsGame: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameState = useStore($colorGame);
-  const { goToMenu } = useGameNavigation();
   const [showDifficultyButtons, setShowDifficultyButtons] = useState(false);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1400,
@@ -176,20 +176,28 @@ const SortColorsGame: React.FC = () => {
   ];
 
   return (
-    <div
-      className="bg-slate-900 w-screen h-screen overflow-hidden p-0 flex items-center justify-center"
-      ref={containerRef}
+    <GameLayout
+      onNewGame={handleNewGame}
+      onConfig={handleToggleDifficulty}
+      score={gameState.moves}
+      bestScore={gameState.bestScore[gameState.difficulty] !== Infinity ? gameState.bestScore[gameState.difficulty] : undefined}
+      onUndo={() => undoColorMove()}
+      undoDisabled={gameState.history.length === 0}
     >
-      {/* SVG Game Board */}
-      <svg
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        onClick={handleSvgClick}
-        className="cursor-pointer bg-slate-950"
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
+      <div
+        className="w-full h-full p-0 flex items-center justify-center relative overflow-hidden"
+        ref={containerRef}
       >
+        {/* SVG Game Board */}
+        <svg
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          onClick={handleSvgClick}
+          className="cursor-pointer bg-slate-950 absolute inset-0"
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+        >
         {/* Draw flasks */}
         {gameState.flasks.map((flask) => {
           const row = Math.floor(flask.id / flasksPerRow);
@@ -398,23 +406,6 @@ const SortColorsGame: React.FC = () => {
         </div>
       )}
 
-      {/* Back Button - Top Left */}
-      <button
-        onClick={() => goToMenu()}
-        className="absolute top-4 left-4 hover:scale-110 transition z-10 w-8 h-8 flex items-center justify-center"
-        title="Back to Menu"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          className="w-full h-full text-white"
-        >
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-      </button>
-
       {/* Fullscreen Button - Top Right (Desktop only) */}
       {!isMobile && (
         <button
@@ -436,44 +427,9 @@ const SortColorsGame: React.FC = () => {
         </button>
       )}
 
-      {/* Moves Counter - Top Center */}
-      <div
-        className={`absolute top-4 left-1/2 transform -translate-x-1/2 text-white font-bold ${isMobile ? "text-xs" : "text-lg"} z-10 text-center`}
-      >
-        <div>Moves: {gameState.moves}</div>
-        {gameState.bestScore[gameState.difficulty] &&
-          gameState.bestScore[gameState.difficulty] !== Infinity && (
-            <div
-              className={`${isMobile ? "text-xs" : "text-sm"} text-gray-300`}
-            >
-              Best: {gameState.bestScore[gameState.difficulty]}
-            </div>
-          )}
-      </div>
-
-      {/* Difficulty Buttons - Bottom Left */}
-      <div className="absolute bottom-4 left-4 z-10">
-        {!showDifficultyButtons ? (
-          <button
-            onClick={handleToggleDifficulty}
-            className="hover:scale-110 transition w-8 h-8 flex items-center justify-center"
-            title="Select Difficulty"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              className="w-full h-full text-white"
-            >
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="19" cy="12" r="1" />
-              <circle cx="5" cy="12" r="1" />
-              <circle cx="12" cy="19" r="1" />
-              <circle cx="12" cy="5" r="1" />
-            </svg>
-          </button>
-        ) : (
+      {/* Difficulty Menu - Bottom Left (appears when config button clicked) */}
+      {showDifficultyButtons && (
+        <div className="absolute bottom-20 left-4 z-10">
           <div className="flex flex-col gap-2 bg-slate-800 p-3 rounded-lg border border-blue-500">
             {difficultyOptions.map((option) => (
               <button
@@ -505,27 +461,10 @@ const SortColorsGame: React.FC = () => {
               Close
             </button>
           </div>
-        )}
+        </div>
+      )}
       </div>
-
-      {/* New Game Button - Bottom Right */}
-      <button
-        onClick={handleNewGame}
-        className="absolute bottom-4 right-4 hover:scale-110 transition z-10 w-8 h-8 flex items-center justify-center"
-        title="New Game"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          className="w-full h-full text-white"
-        >
-          <path d="M1 4v6h6M23 20v-6h-6" />
-          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
-        </svg>
-      </button>
-    </div>
+    </GameLayout>
   );
 };
 

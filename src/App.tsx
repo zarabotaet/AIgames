@@ -9,7 +9,7 @@ function App() {
   const currentGame = useStore($currentGame);
 
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-slate-900 to-slate-950">
+    <div className={`w-full h-full bg-gradient-to-b from-slate-900 to-slate-950 ${currentGame === "menu" ? "overflow-y-auto" : "overflow-hidden"}`}>
       {currentGame === "menu" && <StartScreen />}
       {currentGame === "click-game" && <GameCanvas />}
       {currentGame === "sort-colors" && <SortColorsGame />}

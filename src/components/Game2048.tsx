@@ -11,6 +11,7 @@ import {
   undoMove,
 } from "@store/game2048Store";
 import { useGameNavigation } from "@hooks/useGameNavigation";
+import { GameLayout } from "./GameLayout";
 
 const Game2048: React.FC = () => {
   const gameState = useStore($game2048);
@@ -147,72 +148,29 @@ const Game2048: React.FC = () => {
   };
 
   return (
-    <div
-      className="bg-slate-900 w-screen h-screen overflow-hidden flex flex-col items-center justify-center p-4"
-      ref={containerRef}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      style={{ touchAction: "none" }}
+    <GameLayout
+      onNewGame={handleNewGame}
+      showConfigButton={false}
+      score={gameState.score}
+      bestScore={gameState.bestScore}
+      onUndo={() => undoMove()}
+      undoDisabled={gameState.history.length === 0}
     >
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-center w-full max-w-xl">
-        <h1
-          className={`font-bold text-white ${isMobile ? "text-4xl" : "text-5xl"}`}
-        >
-          2048
-        </h1>
-      </div>
-
-      {/* Score Display */}
-      <div className="flex gap-3 mb-4">
-        <button
-          onClick={() => goToMenu()}
-          className="px-6 py-3 bg-slate-700 rounded-lg hover:bg-slate-600 transition flex items-center justify-center hover:scale-110"
-          title="Back to Menu"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            className="w-6 h-6 text-white"
+      <div
+        className="flex flex-col items-center justify-center p-4 w-full h-full overflow-hidden"
+        ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ touchAction: "none" }}
+      >
+        {/* Header */}
+        <div className="mb-4 flex items-center justify-center w-full max-w-xl">
+          <h1
+            className={`font-bold text-white ${isMobile ? "text-4xl" : "text-5xl"}`}
           >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div className="bg-slate-700 px-6 py-3 rounded-lg text-center">
-          <div className="text-gray-400 text-xs font-bold uppercase">Score</div>
-          <div className="text-white text-2xl font-bold">{gameState.score}</div>
+            2048
+          </h1>
         </div>
-        <div className="bg-slate-700 px-6 py-3 rounded-lg text-center">
-          <div className="text-gray-400 text-xs font-bold uppercase">Best</div>
-          <div className="text-white text-2xl font-bold">
-            {gameState.bestScore}
-          </div>
-        </div>
-        <button
-          onClick={() => undoMove()}
-          disabled={gameState.history.length === 0}
-          className="px-6 py-3 flex items-center justify-center bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition hover:scale-110"
-          title="Undo last move"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            className="w-6 h-6"
-          >
-            <path d="M9 14L4 9m0 0l5-5M4 9h10.5a5.5 5.5 0 015.5 5.5v0a5.5 5.5 0 01-5.5 5.5H13" />
-          </svg>
-        </button>
-        <button
-          onClick={handleNewGame}
-          className="px-6 py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition hover:scale-110"
-        >
-          New
-        </button>
-      </div>
 
       {/* Game Grid */}
       <div
@@ -382,24 +340,25 @@ const Game2048: React.FC = () => {
         )}
       </div>
 
-      {/* Instructions */}
-      <p className="mt-4 text-gray-400 text-center text-sm max-w-md">
-        {isMobile
-          ? "Swipe to move tiles. Merge tiles with the same number to reach 2048!"
-          : "Use arrow keys to move tiles. Merge tiles with the same number to reach 2048!"}
-      </p>
+        {/* Instructions */}
+        <p className="mt-4 text-gray-400 text-center text-sm max-w-md">
+          {isMobile
+            ? "Swipe to move tiles. Merge tiles with the same number to reach 2048!"
+            : "Use arrow keys to move tiles. Merge tiles with the same number to reach 2048!"}
+        </p>
 
-      <style>{`
-        @keyframes tile-appear {
-          from {
-            transform: scale(0);
+        <style>{`
+          @keyframes tile-appear {
+            from {
+              transform: scale(0);
+            }
+            to {
+              transform: scale(1);
+            }
           }
-          to {
-            transform: scale(1);
-          }
-        }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </GameLayout>
   );
 };
 
