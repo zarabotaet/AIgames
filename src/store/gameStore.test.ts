@@ -6,7 +6,7 @@ import {
   scoreReset,
   gameStarted,
   gameEnded,
-} from "@store/gameStore";
+} from "./gameStore";
 
 describe("Game Store", () => {
   beforeEach(() => {
