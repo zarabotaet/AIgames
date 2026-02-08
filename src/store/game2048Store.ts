@@ -17,6 +17,11 @@ export interface Game2048State {
   isGameOver: boolean;
   isGameWon: boolean;
   gameStarted: boolean;
+  history: Array<{
+    grid: (number | null)[][];
+    tiles: Tile[];
+    score: number;
+  }>;
 }
 
 // Events
@@ -26,6 +31,7 @@ export const moveUp = createEvent();
 export const moveDown = createEvent();
 export const moveLeft = createEvent();
 export const moveRight = createEvent();
+export const undoMove = createEvent();
 
 // LocalStorage helpers
 const BEST_SCORE_KEY = "game2048_bestScore";
@@ -270,6 +276,7 @@ export const $game2048 = createStore<Game2048State>({
   isGameOver: false,
   isGameWon: false,
   gameStarted: false,
+  history: [],
 })
   .on(game2048Started, (state) => ({
     ...state,
@@ -284,6 +291,7 @@ export const $game2048 = createStore<Game2048State>({
       isGameOver: false,
       isGameWon: false,
       gameStarted: true,
+      history: [],
     };
   });
 
@@ -297,6 +305,16 @@ const handleMove = (
   const result = moveAndMerge(state.grid, state.tiles, direction);
 
   if (!result.moved) return state;
+
+  // Save current state to history before making the move
+  const newHistory = [
+    ...state.history,
+    {
+      grid: state.grid.map((row) => [...row]),
+      tiles: state.tiles.map((tile) => ({ ...tile })),
+      score: state.score,
+    },
+  ];
 
   // Add new tile
   const withNewTile = addRandomTile(result.grid, result.tiles);
@@ -319,6 +337,7 @@ const handleMove = (
     bestScore: newBestScore,
     isGameWon,
     isGameOver,
+    history: newHistory,
   };
 };
 
@@ -326,4 +345,20 @@ $game2048
   .on(moveUp, (state) => handleMove(state, "up"))
   .on(moveDown, (state) => handleMove(state, "down"))
   .on(moveLeft, (state) => handleMove(state, "left"))
-  .on(moveRight, (state) => handleMove(state, "right"));
+  .on(moveRight, (state) => handleMove(state, "right"))
+  .on(undoMove, (state) => {
+    if (state.history.length === 0) return state;
+
+    const previousState = state.history[state.history.length - 1];
+    const newHistory = state.history.slice(0, -1);
+
+    return {
+      ...state,
+      grid: previousState.grid.map((row) => [...row]),
+      tiles: previousState.tiles.map((tile) => ({ ...tile })),
+      score: previousState.score,
+      history: newHistory,
+      // Reset game over state since we're undoing
+      isGameOver: false,
+    };
+  });

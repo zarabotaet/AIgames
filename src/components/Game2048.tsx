@@ -8,6 +8,7 @@ import {
   moveDown,
   moveLeft,
   moveRight,
+  undoMove,
 } from "@store/game2048Store";
 import { useGameNavigation } from "@hooks/useGameNavigation";
 
@@ -195,6 +196,14 @@ const Game2048: React.FC = () => {
             {gameState.bestScore}
           </div>
         </div>
+        <button
+          onClick={() => undoMove()}
+          disabled={gameState.history.length === 0}
+          className="px-4 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
+          title="Undo last move"
+        >
+          ↶ Undo
+        </button>
       </div>
 
       {/* Game Grid */}
