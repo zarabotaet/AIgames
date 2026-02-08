@@ -16,6 +16,7 @@ const Game2048: React.FC = () => {
   const gameState = useStore($game2048);
   const { goToMenu } = useGameNavigation();
   const containerRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 400,
@@ -65,14 +66,15 @@ const Game2048: React.FC = () => {
 
   // Touch/swipe controls
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (!boardRef.current?.contains(e.target as Node)) return;
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
     e.preventDefault();
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
     if (!touchStartRef.current || gameState.isGameOver) return;
+    e.preventDefault();
 
     const touch = e.changedTouches[0];
     const deltaX = touch.clientX - touchStartRef.current.x;
@@ -209,6 +211,7 @@ const Game2048: React.FC = () => {
       {/* Game Grid */}
       <div
         className="relative bg-slate-700 rounded-lg p-3 select-none"
+        ref={boardRef}
         style={{
           width: `${gridSize}px`,
           height: `${gridSize}px`,
