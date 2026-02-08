@@ -396,12 +396,6 @@ const SortColorsGame: React.FC = () => {
             >
               New Puzzle
             </button>
-            <button
-              onClick={() => goToMenu()}
-              className={`${isMobile ? "px-4 py-2" : "px-5 py-3"} bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 ${isMobile ? "text-sm" : ""}`}
-            >
-              Back to Menu
-            </button>
           </div>
         </div>
       )}
