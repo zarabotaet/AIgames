@@ -22,6 +22,26 @@ const Game2048: React.FC = () => {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 400,
   );
+  const [winAlertDismissed, setWinAlertDismissed] = useState(false);
+  const [winContinued, setWinContinued] = useState(false);
+  const [displayScore, setDisplayScore] = useState(0);
+
+  // Calculate real-time score based on elapsed time + undo penalties
+  useEffect(() => {
+    if (!gameState.startTime || !gameState.gameStarted) return;
+
+    const updateScore = () => {
+      const elapsedSeconds = Math.floor(
+        (Date.now() - gameState.startTime!) / 1000,
+      );
+      const timeScore = elapsedSeconds + gameState.undoCount * 10;
+      setDisplayScore(timeScore);
+    };
+
+    updateScore();
+    const interval = setInterval(updateScore, 100); // Update 10x per second
+    return () => clearInterval(interval);
+  }, [gameState.startTime, gameState.gameStarted, gameState.undoCount]);
 
   // Auto-start game on mount
   useEffect(() => {
@@ -113,6 +133,13 @@ const Game2048: React.FC = () => {
 
   const handleNewGame = () => {
     game2048Reset();
+    setWinAlertDismissed(false);
+    setWinContinued(false);
+  };
+
+  const handleContinuePlayingAfterWin = () => {
+    setWinAlertDismissed(true);
+    setWinContinued(true);
   };
 
   const isMobile = windowWidth < 768;
@@ -151,10 +178,10 @@ const Game2048: React.FC = () => {
     <GameLayout
       onNewGame={handleNewGame}
       showConfigButton={false}
-      score={gameState.score}
+      score={displayScore}
       bestScore={gameState.bestScore}
       onUndo={() => undoMove()}
-      undoDisabled={gameState.history.length === 0}
+      undoDisabled={gameState.history.length === 0 || winContinued}
     >
       <div
         className="flex flex-col items-center justify-center p-4 w-full h-full overflow-hidden"
@@ -228,7 +255,7 @@ const Game2048: React.FC = () => {
               Game Over!
             </h2>
             <p className="text-gray-300 text-lg mb-6">
-              Score: {gameState.score}
+              Score: {displayScore}
             </p>
             <div className="flex gap-3">
               <button
@@ -247,9 +274,10 @@ const Game2048: React.FC = () => {
           </div>
         )}
 
-        {/* Win Celebration */}
-        {gameState.isGameWon && (
-          <>
+        {/* Win Alert */}
+        {gameState.isGameWon && !winAlertDismissed && (
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center">
+            {/* Celebration confetti - only shown in alert */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden"
               viewBox={`0 0 ${gridSize} ${gridSize}`}
@@ -313,30 +341,33 @@ const Game2048: React.FC = () => {
                   </g>
                 );
               })}
-
-              {/* Text celebration */}
-              <text
-                x="50%"
-                y="50%"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="font-bold text-emerald-400"
-                fontSize={isMobile ? "40" : "60"}
-                fill="#10B981"
-                opacity="0"
-              >
-                🎉 2048! 🎉
-                <animate
-                  attributeName="opacity"
-                  from="1"
-                  to="0"
-                  dur="0.5s"
-                  begin="2s"
-                  fill="freeze"
-                />
-              </text>
             </svg>
-          </>
+
+            <div className="relative z-10 text-center">
+              <h2
+                className={`font-bold text-white mb-4 ${isMobile ? "text-3xl" : "text-4xl"}`}
+              >
+                🎉 You Reached 2048! 🎉
+              </h2>
+              <p className="text-gray-300 text-lg mb-6">
+                Score: {displayScore}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleContinuePlayingAfterWin}
+                  className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700"
+                >
+                  Keep Playing
+                </button>
+                <button
+                  onClick={handleNewGame}
+                  className="px-6 py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700"
+                >
+                  New Game
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

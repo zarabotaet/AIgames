@@ -22,6 +22,8 @@ export interface Game2048State {
     tiles: Tile[];
     score: number;
   }>;
+  startTime: number | null;
+  undoCount: number;
 }
 
 // Events
@@ -277,10 +279,13 @@ export const $game2048 = createStore<Game2048State>({
   isGameWon: false,
   gameStarted: false,
   history: [],
+  startTime: null,
+  undoCount: 0,
 })
   .on(game2048Started, (state) => ({
     ...state,
     gameStarted: true,
+    startTime: state.startTime || Date.now(),
   }))
   .on(game2048Reset, (state) => {
     const newState = initializeGame();
@@ -292,6 +297,8 @@ export const $game2048 = createStore<Game2048State>({
       isGameWon: false,
       gameStarted: true,
       history: [],
+      startTime: Date.now(),
+      undoCount: 0,
     };
   });
 
@@ -318,7 +325,11 @@ const handleMove = (
 
   // Add new tile
   const withNewTile = addRandomTile(result.grid, result.tiles);
-  const newScore = state.score + result.scoreGained;
+  // Score is calculated based on elapsed time in seconds + undo penalties
+  const elapsedSeconds = state.startTime
+    ? Math.floor((Date.now() - state.startTime) / 1000)
+    : 0;
+  const newScore = elapsedSeconds + state.undoCount * 10;
   const newBestScore = Math.max(state.bestScore, newScore);
 
   if (newBestScore > state.bestScore) {
@@ -358,6 +369,7 @@ $game2048
       tiles: previousState.tiles.map((tile) => ({ ...tile })),
       score: previousState.score,
       history: newHistory,
+      undoCount: state.undoCount + 1,
       // Reset game over state since we're undoing
       isGameOver: false,
     };
