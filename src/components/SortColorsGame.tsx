@@ -7,6 +7,7 @@ import {
   colorGameReset,
   difficultySelected,
   bestScoreUpdated,
+  colorBestScoreReset,
   groupedMovesSelected,
   undoColorMove,
   type Difficulty,
@@ -181,6 +182,7 @@ const SortColorsGame: React.FC = () => {
       onConfig={handleToggleDifficulty}
       score={gameState.moves}
       bestScore={gameState.bestScore[gameState.difficulty] !== Infinity ? gameState.bestScore[gameState.difficulty] : undefined}
+      onResetBestScore={() => colorBestScoreReset(gameState.difficulty)}
       onUndo={() => undoColorMove()}
       undoDisabled={gameState.history.length === 0}
     >

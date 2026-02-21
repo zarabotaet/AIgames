@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useStore } from "effector-react";
 import {
   $game2048,
+  game2048BestScoreReset,
   game2048Started,
   game2048Reset,
   moveUp,
@@ -28,6 +29,11 @@ const Game2048: React.FC = () => {
 
   // Calculate real-time score based on elapsed time + undo penalties
   useEffect(() => {
+    if (gameState.isGameWon) {
+      setDisplayScore(gameState.score);
+      return;
+    }
+
     if (!gameState.startTime || !gameState.gameStarted) return;
 
     const updateScore = () => {
@@ -41,7 +47,13 @@ const Game2048: React.FC = () => {
     updateScore();
     const interval = setInterval(updateScore, 100); // Update 10x per second
     return () => clearInterval(interval);
-  }, [gameState.startTime, gameState.gameStarted, gameState.undoCount]);
+  }, [
+    gameState.startTime,
+    gameState.gameStarted,
+    gameState.undoCount,
+    gameState.isGameWon,
+    gameState.score,
+  ]);
 
   // Auto-start game on mount
   useEffect(() => {
@@ -88,12 +100,22 @@ const Game2048: React.FC = () => {
   // Touch/swipe controls
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!boardRef.current?.contains(e.target as Node)) return;
+
+    const target = e.target as HTMLElement;
+    if (target.closest("button")) return;
+
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
     e.preventDefault();
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("button")) {
+      touchStartRef.current = null;
+      return;
+    }
+
     if (!touchStartRef.current || gameState.isGameOver) return;
     e.preventDefault();
 
@@ -180,6 +202,7 @@ const Game2048: React.FC = () => {
       showConfigButton={false}
       score={displayScore}
       bestScore={gameState.bestScore}
+      onResetBestScore={() => game2048BestScoreReset()}
       onUndo={() => undoMove()}
       undoDisabled={gameState.history.length === 0 || winContinued}
     >
@@ -257,7 +280,7 @@ const Game2048: React.FC = () => {
             <p className="text-gray-300 text-lg mb-6">
               Score: {displayScore}
             </p>
-            <div className="flex gap-3">
+            <div className="flex justify-center gap-3 w-full">
               <button
                 onClick={handleNewGame}
                 className="px-6 py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700"
@@ -352,7 +375,7 @@ const Game2048: React.FC = () => {
               <p className="text-gray-300 text-lg mb-6">
                 Score: {displayScore}
               </p>
-              <div className="flex gap-3">
+              <div className="flex justify-center gap-3 w-full">
                 <button
                   onClick={handleContinuePlayingAfterWin}
                   className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700"

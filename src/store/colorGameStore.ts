@@ -36,6 +36,7 @@ export const bestScoreUpdated = createEvent<{
   moves: number;
 }>();
 export const undoColorMove = createEvent();
+export const colorBestScoreReset = createEvent<Difficulty>();
 
 // LocalStorage helpers
 const BEST_SCORE_KEY = "colorGame_bestScores";
@@ -375,6 +376,18 @@ export const $colorGame = createStore<ColorGameState>({
       updatedScores[difficulty] = moves;
       saveBestScores(updatedScores);
     }
+    return {
+      ...state,
+      bestScore: updatedScores,
+    };
+  })
+  .on(colorBestScoreReset, (state, difficulty) => {
+    const updatedScores = {
+      ...state.bestScore,
+      [difficulty]: Infinity,
+    };
+    saveBestScores(updatedScores);
+
     return {
       ...state,
       bestScore: updatedScores,

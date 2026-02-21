@@ -12,7 +12,7 @@ export const toggleFullscreen = async (element: HTMLElement) => {
     } else {
       await document.exitFullscreen();
     }
-  } catch (error) {
-    console.error("Fullscreen request failed:", error);
+  } catch {
+    // Ignore fullscreen API rejections (browser restrictions/user gesture requirements)
   }
 };

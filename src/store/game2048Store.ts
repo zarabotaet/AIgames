@@ -34,6 +34,7 @@ export const moveDown = createEvent();
 export const moveLeft = createEvent();
 export const moveRight = createEvent();
 export const undoMove = createEvent();
+export const game2048BestScoreReset = createEvent();
 
 // LocalStorage helpers
 const BEST_SCORE_KEY = "game2048_bestScore";
@@ -325,19 +326,29 @@ const handleMove = (
 
   // Add new tile
   const withNewTile = addRandomTile(result.grid, result.tiles);
+  const reached2048ThisMove =
+    !state.isGameWon && withNewTile.tiles.some((t) => t.value === 2048);
   // Score is calculated based on elapsed time in seconds + undo penalties
   const elapsedSeconds = state.startTime
     ? Math.floor((Date.now() - state.startTime) / 1000)
     : 0;
-  const newScore = elapsedSeconds + state.undoCount * 10;
-  const newBestScore = Math.max(state.bestScore, newScore);
+  const computedScore = elapsedSeconds + state.undoCount * 10;
+  const newScore = state.isGameWon ? state.score : computedScore;
+  const isGameWon = state.isGameWon || reached2048ThisMove;
 
-  if (newBestScore > state.bestScore) {
+  const newBestScore = reached2048ThisMove
+    ? state.bestScore === 0
+      ? newScore
+      : Math.min(state.bestScore, newScore)
+    : state.bestScore;
+
+  if (
+    reached2048ThisMove &&
+    (state.bestScore === 0 || newScore < state.bestScore)
+  ) {
     saveBestScore(newBestScore);
   }
 
-  const isGameWon =
-    !state.isGameWon && withNewTile.tiles.some((t) => t.value === 2048);
   const isGameOver = !canMove(withNewTile.grid);
 
   return {
@@ -372,5 +383,12 @@ $game2048
       undoCount: state.undoCount + 1,
       // Reset game over state since we're undoing
       isGameOver: false,
+    };
+  })
+  .on(game2048BestScoreReset, (state) => {
+    saveBestScore(0);
+    return {
+      ...state,
+      bestScore: 0,
     };
   });
