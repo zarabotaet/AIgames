@@ -3,9 +3,10 @@ import { useGameNavigation } from "@hooks/useGameNavigation";
 
 interface GameLayoutProps {
   children: React.ReactNode;
-  onNewGame: () => void;
+  onNewGame?: () => void;
   onConfig?: () => void;
   showConfigButton?: boolean;
+  showNewGameButton?: boolean;
   score?: number;
   bestScore?: number;
   onResetBestScore?: () => void;
@@ -18,6 +19,7 @@ export const GameLayout: React.FC<GameLayoutProps> = ({
   onNewGame,
   onConfig,
   showConfigButton = true,
+  showNewGameButton = true,
   score,
   bestScore,
   onResetBestScore,
@@ -155,21 +157,23 @@ export const GameLayout: React.FC<GameLayoutProps> = ({
       )}
 
       {/* Bottom Right - New Game Button */}
-      <button
-        onClick={onNewGame}
-        className="absolute bottom-4 right-4 px-6 py-3 bg-amber-500 hover:bg-amber-600 rounded-lg transition flex items-center justify-center hover:scale-110 z-20 shadow-lg"
-        title="New Game"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          className="w-6 h-6 text-white"
+      {showNewGameButton && onNewGame && (
+        <button
+          onClick={onNewGame}
+          className="absolute bottom-4 right-4 px-6 py-3 bg-amber-500 hover:bg-amber-600 rounded-lg transition flex items-center justify-center hover:scale-110 z-20 shadow-lg"
+          title="New Game"
         >
-          <path d="M12 2v20M2 12h20" />
-        </svg>
-      </button>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            className="w-6 h-6 text-white"
+          >
+            <path d="M12 2v20M2 12h20" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 };

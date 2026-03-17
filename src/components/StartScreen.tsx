@@ -70,6 +70,25 @@ const StartScreen: React.FC = () => {
           <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300" />
         </div>
 
+        {/* Doodle Jump Game */}
+        <div
+          className="relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
+          onClick={() => goToGame("doodle-jump")}
+        >
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-600 to-red-600" />
+
+          {/* Content */}
+          <div className="relative p-6 h-48 flex flex-col justify-center items-center text-center">
+            <div className="text-5xl mb-4">🦘</div>
+            <h2 className="text-3xl font-bold text-white mb-2">Doodle Jump</h2>
+            <p className="text-gray-100 text-sm">Jump to reach the highest score</p>
+          </div>
+
+          {/* Hover effect overlay */}
+          <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300" />
+        </div>
+
         {/* Propose Your Game */}
         <div
           className="relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer shadow-lg"
