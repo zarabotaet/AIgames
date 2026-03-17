@@ -165,9 +165,14 @@ export const DoodleJump: React.FC = () => {
       showConfigButton={false}
       showNewGameButton={false}
     >
-      <div className="relative flex flex-col items-center justify-start flex-1 w-full h-full">
+      <div className="relative flex flex-col items-center justify-between w-full h-full gap-0">
+        {/* Canvas Container */}
         <div 
-          className="relative flex-1 w-full flex items-center justify-center bg-sky-400"
+          className="relative w-full flex items-center justify-center flex-shrink-0"
+          style={{
+            aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+            maxHeight: 'calc(100vh - 200px)'
+          }}
           onClick={() => {
             if (!state.gameOver) {
               shoot();
@@ -183,9 +188,8 @@ export const DoodleJump: React.FC = () => {
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            className="w-full h-full max-h-[calc(100vh-200px)] cursor-crosshair touch-none"
+            className="w-full h-full cursor-crosshair touch-none"
             style={{ 
-              aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
               display: 'block',
               pointerEvents: 'none'
             }}
@@ -207,7 +211,8 @@ export const DoodleJump: React.FC = () => {
           )}
         </div>
 
-        <div className="w-full">
+        {/* Control Buttons */}
+        <div className="w-full flex-shrink-0">
           <ControlButtons disabled={state.gameOver} />
         </div>
       </div>
